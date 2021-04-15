@@ -1,0 +1,23 @@
+version: '3'
+services:
+  mysql_db:
+    image: mysql:5.7
+    restart: on-failure
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=mysql
+      - MYSQL_DB=loan-engine-service
+  loan_engine_service:
+    build: .
+    ports:
+      - "3003:3000"
+    restart: on-failure
+    container_name: loan_engine_service
+    environment:
+     - PORT=3003
+     - APP_DB_NAME=loan_engine_dev
+     - APP_DB_USER_NAME=root
+     - APP_DB_PASSWORD=pieipdetails
+

@@ -1,0 +1,57 @@
+{
+  "name": "node-microservice",
+  "version": "1.0.0",
+  "description": "node-microservice",
+  "main": "server.js",
+  "scripts": {
+    "start": "node_modules/.bin/sequelize db:migrate && node server.js",
+    "test": "node_modules/.bin/sequelize db:migrate && npm-run-all --silent test-*",
+    "test-audit": "npm audit --audit-level=high",
+    "test-lint": "eslint ./api-spec ./controllers ./database ./graphql ./dto-schemas ./routes ./services ./utils ./test ./test/api-test",
+    "test-mocha": "find ./test -name '*.js' | xargs nyc mocha --exit"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "Fininfinity Technology Private Limited Developer",
+  "dependencies": {
+    "@graphql-tools/merge": "^6.2.6",
+    "ajv": "^7.0.2",
+    "ajv-errors": "^2.0.0",
+    "ajv-keywords": "^4.0.0",
+    "axios": "^0.19.2",
+    "composable-middleware": "^0.3.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-graphql": "^0.11.0",
+    "graphql": "^15.4.0",
+    "graphql-merge-resolvers": "^1.1.16",
+    "graphql-tools": "^6.2.6",
+    "graphql-type-datetime": "^0.2.4",
+    "graphql-type-json": "^0.3.2",
+    "helmet": "^3.23.3",
+    "lodash.camelcase": "^4.3.0",
+    "lodash.snakecase": "^4.1.1",
+    "pg": "^7.18.2",
+    "sequelize": "^5.22.3",
+    "sequelize-cli": "^5.5.1",
+    "smart-http": "^0.1.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-filenames": "^1.3.2",
+    "eslint-plugin-import": "^2.22.1",
+    "it-each": "^0.4.0",
+    "mocha": "^8.2.1",
+    "npm-run-all": "^4.1.2",
+    "nyc": "^15.1.0",
+    "sinon": "^9.2.2"
+  }
+}

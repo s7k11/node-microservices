@@ -1,0 +1,98 @@
+#  Bitbucket Pipeline for template engine
+image: node:12.16.1
+
+definitions:
+  services:
+    postgres:
+      image: postgres
+      environment:
+        POSTGRES_DB: 'node_microservice'
+        POSTGRES_USER: 'test_user'
+        POSTGRES_PASSWORD: 'test_user_password'
+    redis:
+      image: redis
+
+pipelines:
+  branches:
+    task-*:
+      - step:
+          name: 1. Scanning Git Secrets
+          script:
+            - echo "Installing Git Secrets"
+            - source ${BITBUCKET_CLONE_DIR}/ops/ci/clone-git-secrets.sh
+            - echo "Scan Git Secrets"
+            - source ${BITBUCKET_CLONE_DIR}/ops/ci/git-secrets.sh
+
+    feature-*:
+      - step:
+          name: 1.Running Initial Tests
+          services:
+            - postgres
+            - redis
+          script:
+            - echo "Installing Git Secrets"
+            - source ${BITBUCKET_CLONE_DIR}/ops/ci/clone-git-secrets.sh
+            - cd ${BITBUCKET_CLONE_DIR}/server
+            - echo "NPM Installing Packages"
+            - npm ci
+            - echo "Scan Git Secrets"
+            - cd ${BITBUCKET_CLONE_DIR}
+            - source ${BITBUCKET_CLONE_DIR}/ops/ci/git-secrets.sh
+            - cd ${BITBUCKET_CLONE_DIR}/server
+            - echo "Running Test Cases"
+            - npm run test
+
+    bugfix-*:
+      - step:
+          name: 1.Running Initial Tests
+          services:
+            - postgres
+            - redis
+          script:
+            - echo "Installing Git Secrets"
+            - source ${BITBUCKET_CLONE_DIR}/ops/ci/clone-git-secrets.sh
+            - cd ${BITBUCKET_CLONE_DIR}/server
+            - echo "NPM Installing Packages"
+            - npm ci
+            - echo "Scan Git Secrets"
+            - cd ${BITBUCKET_CLONE_DIR}
+            - source ${BITBUCKET_CLONE_DIR}/ops/ci/git-secrets.sh
+            - cd ${BITBUCKET_CLONE_DIR}/server
+            - echo "Running Test Cases"
+            - npm run test
+
+    '{master,hotfix-*}':
+      - step:
+          name: 1.Running Initial Tests
+          services:
+            - postgres
+            - redis
+          script:
+            - echo "Installing Git Secrets"
+            - source ${BITBUCKET_CLONE_DIR}/ops/ci/clone-git-secrets.sh
+            - cd ${BITBUCKET_CLONE_DIR}/server
+            - echo "NPM Installing Packages"
+            - npm ci
+            - echo "Scan Git Secrets"
+            - cd ${BITBUCKET_CLONE_DIR}
+            - source ${BITBUCKET_CLONE_DIR}/ops/ci/git-secrets.sh
+            - cd ${BITBUCKET_CLONE_DIR}/server
+            - echo "Running Test Cases"
+            - npm run test
+            - echo "Removing unnecessary modules for production deployment"
+            - npm prune --production            
+            - cp ${BITBUCKET_CLONE_DIR}/Dockerfile ${BITBUCKET_CLONE_DIR}/server
+            - cp ${BITBUCKET_CLONE_DIR}/.dockerignore ${BITBUCKET_CLONE_DIR}/server
+          artifacts:
+            - server/**
+      - step:
+          name: 2. Create AWS ECR Registry and Push Artifacts
+          image: python:2.7.12
+          services:
+            - docker
+          script:
+            - bash ${BITBUCKET_CLONE_DIR}/ops/ci/push-docker-image-ecr.sh ${BITBUCKET_CLONE_DIR}/server
+      - step:
+          name: 3. Creating tag to commit
+          script:
+            - bash ${BITBUCKET_CLONE_DIR}/ops/ci/create-tag.sh
